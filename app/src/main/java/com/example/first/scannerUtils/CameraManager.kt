@@ -166,37 +166,4 @@ class CameraManager {
             }
         )
     }
-
-//    @OptIn(ExperimentalGetImage::class)
-   /* private fun processImageProxy(
-        imageProxy: ImageProxy,
-        onTextDetected: (String) -> Unit = {}
-    ) {
-        val mediaImage = imageProxy.image
-        if (mediaImage != null) {
-            val inputImage = InputImage.fromMediaImage(mediaImage, imageProxy.imageInfo.rotationDegrees)
-            val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
-
-            recognizer.process(inputImage)
-                .addOnSuccessListener { visionText ->
-                    for (block in visionText.textBlocks) {
-                        val blockText = block.text
-                        Log.d("cameraLog", "Detected text: $blockText")
-                        if(handleRecognizedText(visionText)) {
-//                        if (isPanOrAadhaarCard(blockText)) {
-                            Log.d("cameraLog", "PAN/Aadhaar detected: $visionText")
-//                            onTextDetected(blockText)
-//                            captureImage(mutableStateOf(null))
-                            imageProxy.close()
-                        }
-                    }
-                }
-                .addOnFailureListener { e ->
-                    Log.e("cameraLog", "Error recognizing text: ${e.message}")
-                }
-                .addOnCompleteListener {
-                    imageProxy.close()
-                }
-        }
-    }*/
 }
