@@ -81,8 +81,6 @@ class CameraManager {
 
     fun stopCamera() {
         if (!isCameraInitialised) return
-
-        // Unbind all camera use cases
         val cameraProvider = ProcessCameraProvider.getInstance(context).get()
         cameraProvider.unbindAll()
         isCameraInitialised = false
@@ -90,8 +88,8 @@ class CameraManager {
 
     fun captureImage(
         croppedImage: MutableState<Bitmap?>,
-        borderColor: MutableState<Color>
-//        isAutomatic: Boolean,
+        borderColor: MutableState<Color>,
+        isLoading: MutableState<Boolean>,
     ) {
         imageCapture?.takePicture(
             ContextCompat.getMainExecutor(context),
@@ -145,21 +143,21 @@ class CameraManager {
                         .addOnSuccessListener { visionText ->
                             val imageResult = detectAnomaly(originalBitmap, context) == "original" && detectAnomaly(croppedBitmap, context) == "original"
                             if(imageResult && handleRecognizedText(visionText)) {
+                                borderColor.value = Color.Green
                                 Toast.makeText(context, "Original!", Toast.LENGTH_SHORT).show()
                                 croppedImage.value = croppedBitmap
-                                borderColor.value = Color.Green
                             } else {
                                 borderColor.value = Color.Red
                                 Toast.makeText(context, "Anomaly!", Toast.LENGTH_SHORT).show()
                             }
                         }
                         .addOnFailureListener { e ->
+                            Toast.makeText(context, "Failed to detect image", Toast.LENGTH_SHORT).show()
                             Log.e("cameraLog", "Error recognizing text: ${e.message}")
                         }
+                    isLoading.value = false
                     image.close()
-                    borderColor.value = Color.White
                 }
-
                 override fun onError(exception: ImageCaptureException) {
                     Log.e("cameraLog", "Capture failed: $exception")
                 }

@@ -14,11 +14,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
@@ -36,6 +38,7 @@ fun ScannerScreen() {
     val isCameraInitialised = remember { mutableStateOf(false) }
     val isPermissionGranted = remember { mutableStateOf(ContextCompat.checkSelfPermission(localContext, Manifest.permission.CAMERA) == android.content.pm.PackageManager.PERMISSION_GRANTED) }
     val croppedImage = remember { mutableStateOf<Bitmap?>(null) }
+    val isLoading = remember { mutableStateOf(false) }
     val borderColor = remember { mutableStateOf(Color.White) }
 
     val cameraManager = remember { CameraManager() }
@@ -82,15 +85,26 @@ fun ScannerScreen() {
                         }
                     }
                 }
-                croppedImage.value?.let { image ->
-                    Image(
-                        bitmap = image.asImageBitmap(),
-                        contentDescription = "Cropped Image",
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp)
-                            .size(150.dp)
-                    )
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    if(isLoading.value) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.padding(16.dp)
+                        )
+                    } else {
+                        croppedImage.value?.let { image ->
+                            Image(
+                                bitmap = image.asImageBitmap(),
+                                contentDescription = "Cropped Image",
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp)
+                                    .size(150.dp)
+                            )
+                        }
+                    }
                 }
             }
         },
@@ -102,9 +116,12 @@ fun ScannerScreen() {
                     else cameraManager.startCamera(isCameraInitialisedState = isCameraInitialised)
                 },
                 onTakePictureClicked = {
+                    borderColor.value = Color.White
+                    isLoading.value = true
                     cameraManager.captureImage(
                         croppedImage = croppedImage,
-                        borderColor = borderColor
+                        borderColor = borderColor,
+                        isLoading = isLoading,
                     )
                 }
             )
